@@ -1,13 +1,14 @@
-import axios from 'axios'
+import axios from "axios";
+import { normalizePhone } from "../utils/phone";
 
-const DEFAULT_ENDPOINT = '/sms-pilot/api.php'
+const DEFAULT_ENDPOINT = "/sms-pilot/api.php";
 
 export interface SmsSendResult {
-  id?: string
-  to?: string
-  server?: string
-  cost?: number
-  status?: string
+  id?: string;
+  to?: string;
+  server?: string;
+  cost?: number;
+  status?: string;
 }
 
 /**
@@ -16,24 +17,38 @@ export interface SmsSendResult {
  * В dev-режиме запрос проксируется через Vite (/sms-pilot -> smspilot.ru).
  * Тестовый ключ не производит реальной отправки.
  */
-export async function sendSms(to: string, text: string): Promise<SmsSendResult> {
-  const endpoint = import.meta.env.VITE_SMSPILOT_ENDPOINT || DEFAULT_ENDPOINT
-  const apiKey = import.meta.env.VITE_SMSPILOT_API_KEY || ''
+export async function sendSms(
+  to: string,
+  text: string,
+): Promise<SmsSendResult> {
+  const endpoint = import.meta.env.VITE_SMSPILOT_ENDPOINT || DEFAULT_ENDPOINT;
+  const apiKey = import.meta.env.VITE_SMSPILOT_API_KEY || "";
 
-  const phone = to.replace(/[^\d]/g, '').replace(/^8(?=\d{10}$)/, '7')
-
-  const body = new URLSearchParams()
-  body.append('apikey', apiKey)
-  body.append('format', 'json')
-  body.append('send', text)
-  body.append('to', phone)
+  const body = new URLSearchParams();
+  body.append("apikey", apiKey);
+  body.append("format", "json");
+  body.append("send", text);
+  body.append("to", normalizePhone(to));
 
   const response = await axios.post(endpoint, body, {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  })
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    timeout: 15000,
+  });
 
-  if (response.data?.error) {
-    throw new Error(`SMS: ${response.data.error}`)
+  const data: unknown = response.data;
+  if (typeof data !== "object" || data === null) {
+    throw new Error("SMS: неожиданный ответ сервера (не JSON)");
   }
-  return (response.data?.send?.[0] ?? {}) as SmsSendResult
+
+  const payload = data as { error?: string; send?: unknown; success?: unknown };
+  if (payload.error) {
+    throw new Error(`SMS: ${payload.error}`);
+  }
+
+  const send = payload.send;
+  if (!Array.isArray(send) || send.length === 0) {
+    throw new Error("SMS: сервис не вернул результат отправки");
+  }
+
+  return send[0] as SmsSendResult;
 }
