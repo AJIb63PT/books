@@ -1,0 +1,8 @@
+# Спецификация бэкенда — не трогаем
+book.yaml
+# Генерируемый service worker MSW
+public/mockServiceWorker.js
+# Генерируемый lockfile
+package-lock.json
+node_modules
+dist
