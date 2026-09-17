@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { useAuthStore } from './stores/auth'
+import { onBeforeUnmount, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { UNAUTHORIZED_EVENT } from "./api/http";
+import { useAuthStore } from "./stores/auth";
 
-const auth = useAuthStore()
-const router = useRouter()
+const auth = useAuthStore();
+const router = useRouter();
+const route = useRoute();
+
+function onUnauthorized(): void {
+  router.push({ name: "login", query: { redirect: route.fullPath } });
+}
+
+onMounted(() => window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized));
+onBeforeUnmount(() =>
+  window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized),
+);
 
 function onLogout(): void {
-  auth.logout()
-  router.push({ name: 'login' })
+  auth.logout();
+  router.push({ name: "login" });
 }
 </script>
 
@@ -31,16 +43,24 @@ function onLogout(): void {
       <div id="mainNav" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'books' }">Книги</RouterLink>
+            <RouterLink class="nav-link" :to="{ name: 'books' }"
+              >Книги</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'authors' }">Авторы</RouterLink>
+            <RouterLink class="nav-link" :to="{ name: 'authors' }"
+              >Авторы</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'top-authors' }">ТОП авторов</RouterLink>
+            <RouterLink class="nav-link" :to="{ name: 'top-authors' }"
+              >ТОП авторов</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'subscribe' }">Подписка</RouterLink>
+            <RouterLink class="nav-link" :to="{ name: 'subscribe' }"
+              >Подписка</RouterLink
+            >
           </li>
         </ul>
         <ul class="navbar-nav">
@@ -55,16 +75,24 @@ function onLogout(): void {
               </RouterLink>
             </li>
             <li class="nav-item">
-              <span class="nav-link text-light-emphasis">{{ auth.user?.username }}</span>
+              <span class="nav-link text-light-emphasis">{{
+                auth.user?.username
+              }}</span>
             </li>
             <li class="nav-item">
-              <button type="button" class="nav-link btn btn-link" @click="onLogout">
+              <button
+                type="button"
+                class="nav-link btn btn-link"
+                @click="onLogout"
+              >
                 Выйти
               </button>
             </li>
           </template>
           <li v-else class="nav-item">
-            <RouterLink class="nav-link" :to="{ name: 'login' }">Войти</RouterLink>
+            <RouterLink class="nav-link" :to="{ name: 'login' }"
+              >Войти</RouterLink
+            >
           </li>
         </ul>
       </div>
@@ -75,7 +103,9 @@ function onLogout(): void {
     <RouterView />
   </main>
 
-  <footer class="border-top py-3 text-center text-secondary text-secondary-small">
+  <footer
+    class="border-top py-3 text-center text-secondary text-secondary-small"
+  >
     Каталог книг · Vue 3 + TypeScript + Bootstrap
   </footer>
 </template>

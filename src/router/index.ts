@@ -1,82 +1,86 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior: () => ({ top: 0 }),
   routes: [
     {
-      path: '/',
-      name: 'books',
-      component: () => import('../views/BooksListView.vue'),
+      path: "/",
+      name: "books",
+      component: () => import("../views/BooksListView.vue"),
     },
     {
-      path: '/books/new',
-      name: 'book-create',
-      component: () => import('../views/BookFormView.vue'),
+      path: "/books/new",
+      name: "book-create",
+      component: () => import("../views/BookFormView.vue"),
       meta: { requiresAuth: true },
     },
     {
-      path: '/books/:id',
-      name: 'book-detail',
-      component: () => import('../views/BookDetailView.vue'),
+      path: "/books/:id",
+      name: "book-detail",
+      component: () => import("../views/BookDetailView.vue"),
     },
     {
-      path: '/books/:id/edit',
-      name: 'book-edit',
-      component: () => import('../views/BookFormView.vue'),
+      path: "/books/:id/edit",
+      name: "book-edit",
+      component: () => import("../views/BookFormView.vue"),
       meta: { requiresAuth: true },
     },
     {
-      path: '/authors',
-      name: 'authors',
-      component: () => import('../views/AuthorsListView.vue'),
+      path: "/authors",
+      name: "authors",
+      component: () => import("../views/AuthorsListView.vue"),
     },
     {
-      path: '/authors/new',
-      name: 'author-create',
-      component: () => import('../views/AuthorFormView.vue'),
+      path: "/authors/new",
+      name: "author-create",
+      component: () => import("../views/AuthorFormView.vue"),
       meta: { requiresAuth: true },
     },
     {
-      path: '/authors/:id',
-      name: 'author-detail',
-      component: () => import('../views/AuthorDetailView.vue'),
+      path: "/authors/:id",
+      name: "author-detail",
+      component: () => import("../views/AuthorDetailView.vue"),
     },
     {
-      path: '/authors/:id/edit',
-      name: 'author-edit',
-      component: () => import('../views/AuthorFormView.vue'),
+      path: "/authors/:id/edit",
+      name: "author-edit",
+      component: () => import("../views/AuthorFormView.vue"),
       meta: { requiresAuth: true },
     },
     {
-      path: '/report',
-      name: 'top-authors',
-      component: () => import('../views/TopAuthorsView.vue'),
+      path: "/report",
+      name: "top-authors",
+      component: () => import("../views/TopAuthorsView.vue"),
     },
     {
-      path: '/subscribe',
-      name: 'subscribe',
-      component: () => import('../views/SubscribeView.vue'),
+      path: "/subscribe",
+      name: "subscribe",
+      component: () => import("../views/SubscribeView.vue"),
     },
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/LoginView.vue'),
+      path: "/login",
+      name: "login",
+      component: () => import("../views/LoginView.vue"),
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      redirect: '/',
+      path: "/:pathMatch(.*)*",
+      name: "not-found",
+      redirect: "/",
     },
   ],
-})
+});
 
 router.beforeEach((to) => {
-  const auth = useAuthStore()
+  const auth = useAuthStore();
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } }
+    return { name: "login", query: { redirect: to.fullPath } };
   }
-  return true
-})
+  if (to.name === "login" && auth.isAuthenticated) {
+    return { name: "books" };
+  }
+  return true;
+});
 
-export default router
+export default router;
