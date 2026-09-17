@@ -292,10 +292,21 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 
-  http.post('/sms-pilot/api2.php', async ({ request }) => {
+  http.post('/sms-pilot/api.php', async ({ request }) => {
     const body = new URLSearchParams(await request.text())
+    const to = body.get('to')
     const rawSend = body.get('send')
-    const messages = rawSend ? (JSON.parse(rawSend) as Array<{ to: string; text: string }>) : []
+    let messages: Array<{ to: string; text: string }> = []
+
+    if (to && rawSend) {
+      messages = [{ to, text: rawSend }]
+    } else if (rawSend) {
+      try {
+        messages = JSON.parse(rawSend) as Array<{ to: string; text: string }>
+      } catch {
+        messages = []
+      }
+    }
 
     const send = messages.map((message, index) => ({
       server: 'send',
@@ -303,9 +314,10 @@ export const handlers = [
       to: message.to,
       text: message.text,
       cost: 1.5,
+      status: 'Отправлено',
       id: `mock-sms-${index + 1}-${Date.now()}`,
     }))
-    return HttpResponse.json({ send })
+    return HttpResponse.json({ success: true, send })
   }),
 
   http.get('/api/v1/reports/top-authors', ({ request }) => {
