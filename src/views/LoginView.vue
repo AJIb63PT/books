@@ -1,33 +1,34 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import AppAlert from '../components/AppAlert.vue'
-import { extractApiError } from '../api/http'
-import { useAuthStore } from '../stores/auth'
+import { reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import AppAlert from "../components/AppAlert.vue";
+import { extractApiError } from "../api/http";
+import { useAuthStore } from "../stores/auth";
 
-const auth = useAuthStore()
-const route = useRoute()
-const router = useRouter()
+const auth = useAuthStore();
+const route = useRoute();
+const router = useRouter();
 
 const form = reactive({
-  username: '',
-  password: '',
-})
+  username: "",
+  password: "",
+});
 
-const submitting = ref(false)
-const errorMessage = ref<string | null>(null)
+const submitting = ref(false);
+const errorMessage = ref<string | null>(null);
 
 async function onSubmit(): Promise<void> {
-  submitting.value = true
-  errorMessage.value = null
+  submitting.value = true;
+  errorMessage.value = null;
   try {
-    await auth.login({ username: form.username, password: form.password })
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
-    await router.push(redirect)
+    await auth.login({ username: form.username, password: form.password });
+    const redirect =
+      typeof route.query.redirect === "string" ? route.query.redirect : "/";
+    await router.push(redirect);
   } catch (error) {
-    errorMessage.value = extractApiError(error)
+    errorMessage.value = extractApiError(error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 </script>
@@ -64,14 +65,19 @@ async function onSubmit(): Promise<void> {
                 required
               />
             </div>
-            <button type="submit" class="btn btn-primary w-100" :disabled="submitting">
-              {{ submitting ? 'Вход…' : 'Войти' }}
+            <button
+              type="submit"
+              class="btn btn-primary w-100"
+              :disabled="submitting"
+            >
+              {{ submitting ? "Вход…" : "Войти" }}
             </button>
           </form>
         </div>
       </div>
       <p class="text-secondary text-secondary-small mt-3 text-center">
-        Гости могут просматривать каталог, авторов и отчёт. Полные права (CRUD) — у пользователей.
+        Гости могут просматривать каталог, авторов и отчёт. Полные права (CRUD)
+        — у пользователей.
       </p>
     </div>
   </div>

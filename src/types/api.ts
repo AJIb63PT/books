@@ -1,132 +1,132 @@
 export interface UserInfo {
-  id: number
-  username: string
-  role: string
+  id: number;
+  username: string;
+  role: string;
 }
 
 export interface LoginRequest {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 export interface LoginData {
-  token: string
-  expires_at: string
-  user: UserInfo
+  token: string;
+  expires_at: string;
+  user: UserInfo;
 }
 
 export interface LoginResponse {
-  success: boolean
-  data: LoginData
+  success: boolean;
+  data: LoginData;
 }
 
 export interface AuthorShort {
-  id: number
-  full_name: string
+  id: number;
+  full_name: string;
 }
 
 export interface Author {
-  id: number
-  full_name: string
-  books?: BookShort[]
+  id: number;
+  full_name: string;
+  books?: BookShort[];
 }
 
 export interface BookShort {
-  id: number
-  title: string
-  year: number
+  id: number;
+  title: string;
+  year: number;
 }
 
 export interface Book {
-  id: number
-  title: string
-  year: number
-  description?: string
-  isbn?: string
-  cover_url?: string
-  authors: AuthorShort[]
+  id: number;
+  title: string;
+  year: number;
+  description?: string;
+  isbn?: string;
+  cover_url?: string;
+  authors: AuthorShort[];
 }
 
 export interface BookInput {
-  title?: string
-  year?: number
-  description?: string
-  isbn?: string
-  author_ids?: number[]
+  title?: string;
+  year?: number;
+  description?: string;
+  isbn?: string;
+  author_ids?: number[];
 }
 
 export interface BookForm {
-  title: string
-  year: number
-  description?: string
-  isbn?: string
-  author_ids: number[]
+  title: string;
+  year: number;
+  description?: string;
+  isbn?: string;
+  author_ids: number[];
 }
 
 export interface AuthorInput {
-  full_name: string
+  full_name: string;
 }
 
 export interface Pagination {
-  total: number
-  page: number
-  per_page: number
-  total_pages: number
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
 }
 
 export interface BookListData {
-  items: Book[]
-  pagination: Pagination
+  items: Book[];
+  pagination: Pagination;
 }
 
 export interface BookListResponse {
-  success: boolean
-  data: BookListData
+  success: boolean;
+  data: BookListData;
 }
 
 export interface AuthorListData {
-  items: AuthorShort[]
-  pagination: Pagination
+  items: AuthorShort[];
+  pagination: Pagination;
 }
 
 export interface AuthorListResponse {
-  success: boolean
-  data: AuthorListData
+  success: boolean;
+  data: AuthorListData;
 }
 
 export interface BookResponse {
-  success: boolean
-  data: Book
+  success: boolean;
+  data: Book;
 }
 
 export interface AuthorResponse {
-  success: boolean
-  data: Author
+  success: boolean;
+  data: Author;
 }
 
 export interface TopAuthor {
-  rank: number
-  author_id: number
-  full_name: string
-  books_count: number
+  rank: number;
+  author_id: number;
+  full_name: string;
+  books_count: number;
 }
 
 export interface TopAuthorsData {
-  year: number
-  items: TopAuthor[]
+  year: number;
+  items: TopAuthor[];
 }
 
 export interface TopAuthorsResponse {
-  success: boolean
-  data: TopAuthorsData
+  success: boolean;
+  data: TopAuthorsData;
 }
 
 export interface ErrorItem {
-  field?: string
-  message: string
+  field?: string;
+  message: string;
 }
 
 export interface ApiError {
-  success: boolean
-  errors: ErrorItem[]
+  success: boolean;
+  errors: ErrorItem[];
 }

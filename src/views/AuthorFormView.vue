@@ -1,70 +1,72 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import AppAlert from '../components/AppAlert.vue'
-import { createAuthor, fetchAuthor, updateAuthor } from '../api/authors'
-import { extractApiError } from '../api/http'
+import { computed, onMounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import AppAlert from "../components/AppAlert.vue";
+import { createAuthor, fetchAuthor, updateAuthor } from "../api/authors";
+import { extractApiError } from "../api/http";
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
-const isEdit = computed(() => route.name === 'author-edit')
-const authorId = computed(() => (isEdit.value ? Number(route.params.id) : null))
+const isEdit = computed(() => route.name === "author-edit");
+const authorId = computed(() =>
+  isEdit.value ? Number(route.params.id) : null,
+);
 
-const form = reactive({ fullName: '' })
-const loading = ref(true)
-const saving = ref(false)
-const errorMessage = ref<string | null>(null)
+const form = reactive({ fullName: "" });
+const loading = ref(true);
+const saving = ref(false);
+const errorMessage = ref<string | null>(null);
 
 async function loadForEdit(): Promise<void> {
-  if (!authorId.value) return
+  if (!authorId.value) return;
   try {
-    const author = await fetchAuthor(authorId.value)
-    form.fullName = author.full_name
+    const author = await fetchAuthor(authorId.value);
+    form.fullName = author.full_name;
   } catch (error) {
-    errorMessage.value = extractApiError(error)
+    errorMessage.value = extractApiError(error);
   }
 }
 
 function validate(): string | null {
-  if (!form.fullName.trim()) return 'Укажите ФИО автора'
-  return null
+  if (!form.fullName.trim()) return "Укажите ФИО автора";
+  return null;
 }
 
 async function onSubmit(): Promise<void> {
-  errorMessage.value = null
-  const validationError = validate()
+  errorMessage.value = null;
+  const validationError = validate();
   if (validationError) {
-    errorMessage.value = validationError
-    return
+    errorMessage.value = validationError;
+    return;
   }
 
-  saving.value = true
+  saving.value = true;
   try {
-    const payload = { full_name: form.fullName.trim() }
+    const payload = { full_name: form.fullName.trim() };
     const saved = isEdit.value
       ? await updateAuthor(authorId.value as number, payload)
-      : await createAuthor(payload)
-    await router.push({ name: 'author-detail', params: { id: saved.id } })
+      : await createAuthor(payload);
+    await router.push({ name: "author-detail", params: { id: saved.id } });
   } catch (error) {
-    errorMessage.value = extractApiError(error)
+    errorMessage.value = extractApiError(error);
   } finally {
-    saving.value = false
+    saving.value = false;
   }
 }
 
 onMounted(async () => {
-  loading.value = true
-  await loadForEdit()
-  loading.value = false
-})
+  loading.value = true;
+  await loadForEdit();
+  loading.value = false;
+});
 </script>
 
 <template>
   <div class="row justify-content-center">
     <div class="col-lg-6">
       <h1 class="h3 mb-4">
-        {{ isEdit ? 'Редактирование автора' : 'Новый автор' }}
+        {{ isEdit ? "Редактирование автора" : "Новый автор" }}
       </h1>
 
       <AppAlert :message="errorMessage" @close="errorMessage = null" />
@@ -90,9 +92,12 @@ onMounted(async () => {
           </div>
           <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary" :disabled="saving">
-              {{ saving ? 'Сохранение…' : isEdit ? 'Сохранить' : 'Создать' }}
+              {{ saving ? "Сохранение…" : isEdit ? "Сохранить" : "Создать" }}
             </button>
-            <RouterLink class="btn btn-outline-secondary" :to="{ name: 'authors' }">
+            <RouterLink
+              class="btn btn-outline-secondary"
+              :to="{ name: 'authors' }"
+            >
               Отмена
             </RouterLink>
           </div>
