@@ -96,7 +96,7 @@ onMounted(loadAuthor);
     </div>
 
     <h2 class="h5 mb-3">Книги автора</h2>
-    <div v-if="author.books?.length" class="row row-cols-1 row-cols-md-2 g-3">
+    <div v-if="author.books?.length" class="row row-cols-1 row-cols-md-2 g-4">
       <div
         v-for="book in author.books"
         :key="book.id"
