@@ -96,11 +96,11 @@ onMounted(loadAuthor);
     </div>
 
     <h2 class="h5 mb-3">Книги автора</h2>
-    <div v-if="author.books?.length" class="row row-cols-1 row-cols-md-2 g-4">
+    <div v-if="author.books?.length" class="grid g-3">
       <div
         v-for="book in author.books"
         :key="book.id"
-        class="col d-flex justify-content-between align-items-center border rounded p-3"
+        class="g-col-6 d-flex justify-content-between align-items-center border rounded p-3"
       >
         <div>
           <div class="fw-semibold">{{ book.title }}</div>
