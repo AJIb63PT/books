@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { PAGE_SIZES } from "../constants";
 import AppAlert from "../components/AppAlert.vue";
 import AppPagination from "../components/AppPagination.vue";
@@ -61,6 +61,17 @@ function scheduleReload(): void {
 function goToPage(page: number): void {
   filters.page = page;
   loadBooks();
+}
+
+const hasActiveFilters = computed(
+  () => filters.search !== "" || filters.year !== "" || filters.authorId !== "",
+);
+
+function clearFilters(): void {
+  filters.search = "";
+  filters.year = "";
+  filters.authorId = "";
+  applyFilters();
 }
 
 watch(
@@ -133,6 +144,16 @@ onMounted(async () => {
             </option>
           </select>
         </div>
+      </div>
+      <div class="d-flex justify-content-end mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          :disabled="!hasActiveFilters"
+          @click="clearFilters"
+        >
+          Очистить фильтры
+        </button>
       </div>
       <AppAlert
         class="mt-3"
