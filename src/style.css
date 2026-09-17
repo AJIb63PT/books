@@ -21,3 +21,8 @@
 .text-secondary-small {
   font-size: 0.85rem;
 }
+
+.navbar-nav .nav-link.router-link-active {
+  color: var(--bs-navbar-active-color, #fff);
+  font-weight: 600;
+}

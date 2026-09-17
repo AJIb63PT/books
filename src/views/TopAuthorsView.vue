@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import AppAlert from '../components/AppAlert.vue'
-import { extractApiError } from '../api/http'
-import { fetchTopAuthors } from '../api/reports'
-import type { TopAuthor } from '../types/api'
+import { ref } from "vue";
+import AppAlert from "../components/AppAlert.vue";
+import { extractApiError } from "../api/http";
+import { fetchTopAuthors } from "../api/reports";
+import type { TopAuthor } from "../types/api";
 
-const defaultYear = String(new Date().getFullYear())
-const year = ref(defaultYear)
-const items = ref<TopAuthor[]>([])
-const loadedYear = ref<number | null>(null)
-const loading = ref(false)
-const errorMessage = ref<string | null>(null)
+const defaultYear = String(new Date().getFullYear());
+const year = ref(defaultYear);
+const items = ref<TopAuthor[]>([]);
+const loadedYear = ref<number | null>(null);
+const loading = ref(false);
+const errorMessage = ref<string | null>(null);
 
 async function loadReport(): Promise<void> {
-  errorMessage.value = null
-  const parsed = Number(year.value)
+  errorMessage.value = null;
+  const parsed = Number(year.value);
   if (!year.value || Number.isNaN(parsed) || parsed < 1000 || parsed > 2100) {
-    errorMessage.value = 'Укажите корректный год (1000–2100)'
-    return
+    errorMessage.value = "Укажите корректный год (1000–2100)";
+    return;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
-    const data = await fetchTopAuthors(parsed)
-    items.value = data.items
-    loadedYear.value = data.year
+    const data = await fetchTopAuthors(parsed);
+    items.value = data.items;
+    loadedYear.value = data.year;
   } catch (error) {
-    errorMessage.value = extractApiError(error)
+    errorMessage.value = extractApiError(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 </script>
@@ -52,17 +52,33 @@ async function loadReport(): Promise<void> {
           />
         </div>
         <div class="col-md-3">
-          <button type="submit" class="btn btn-primary w-100" :disabled="loading">
-            {{ loading ? 'Загрузка…' : 'Показать' }}
+          <button
+            type="submit"
+            class="btn btn-primary w-100"
+            :disabled="loading"
+          >
+            {{ loading ? "Загрузка…" : "Показать" }}
           </button>
         </div>
       </form>
-      <AppAlert class="mt-3" :message="errorMessage" @close="errorMessage = null" />
+      <AppAlert
+        class="mt-3"
+        :message="errorMessage"
+        @close="errorMessage = null"
+      />
     </div>
   </div>
 
-  <div v-if="loadedYear !== null" class="card">
-    <div class="card-header">Авторы, выпустившие больше всего книг в {{ loadedYear }} году</div>
+  <div v-if="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Загрузка…</span>
+    </div>
+  </div>
+
+  <div v-else-if="loadedYear !== null" class="card">
+    <div class="card-header">
+      Авторы, выпустившие больше всего книг в {{ loadedYear }} году
+    </div>
     <div class="table-responsive">
       <table class="table table-hover mb-0">
         <thead>
@@ -78,7 +94,9 @@ async function loadReport(): Promise<void> {
               <span class="badge text-bg-secondary">{{ item.rank }}</span>
             </td>
             <td>
-              <RouterLink :to="{ name: 'author-detail', params: { id: item.author_id } }">
+              <RouterLink
+                :to="{ name: 'author-detail', params: { id: item.author_id } }"
+              >
                 {{ item.full_name }}
               </RouterLink>
             </td>
