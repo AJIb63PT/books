@@ -32,8 +32,10 @@ const filters = reactive({
 });
 
 let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+let loadSeq = 0;
 
 async function loadAuthors(): Promise<void> {
+  const seq = ++loadSeq;
   loading.value = true;
   errorMessage.value = null;
   try {
@@ -42,12 +44,14 @@ async function loadAuthors(): Promise<void> {
       perPage: PAGE_SIZES.AUTHORS,
       search: filters.search || undefined,
     });
+    if (seq !== loadSeq) return;
     authors.value = data.items;
     pagination.value = data.pagination;
   } catch (error) {
+    if (seq !== loadSeq) return;
     errorMessage.value = extractApiError(error);
   } finally {
-    loading.value = false;
+    if (seq === loadSeq) loading.value = false;
   }
 }
 
