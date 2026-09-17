@@ -1,74 +1,88 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import AppAlert from '../components/AppAlert.vue'
-import AppPagination from '../components/AppPagination.vue'
-import { deleteAuthor, fetchAuthors } from '../api/authors'
-import { extractApiError } from '../api/http'
-import { useAuthStore } from '../stores/auth'
-import type { AuthorShort, Pagination } from '../types/api'
+import { computed, onMounted, reactive, ref } from "vue";
+import { PAGE_SIZES } from "../constants";
+import AppAlert from "../components/AppAlert.vue";
+import AppConfirm from "../components/AppConfirm.vue";
+import AppPagination from "../components/AppPagination.vue";
+import { deleteAuthor, fetchAuthors } from "../api/authors";
+import { extractApiError } from "../api/http";
+import { useAuthStore } from "../stores/auth";
+import type { AuthorShort, Pagination } from "../types/api";
 
-const auth = useAuthStore()
+const auth = useAuthStore();
 
-const authors = ref<AuthorShort[]>([])
-const pagination = ref<Pagination | null>(null)
-const loading = ref(false)
-const errorMessage = ref<string | null>(null)
-const deletingId = ref<number | null>(null)
+const authors = ref<AuthorShort[]>([]);
+const pagination = ref<Pagination | null>(null);
+const loading = ref(false);
+const errorMessage = ref<string | null>(null);
+const deletingId = ref<number | null>(null);
+const confirmRef = ref<InstanceType<typeof AppConfirm> | null>(null);
+
+const confirmAuthor = ref<AuthorShort | null>(null);
+
+const confirmMessage = computed(() =>
+  confirmAuthor.value
+    ? `Удалить автора «${confirmAuthor.value.full_name}»?`
+    : "",
+);
 
 const filters = reactive({
   page: 1,
-  search: '',
-})
+  search: "",
+});
 
-let debounceTimer: ReturnType<typeof setTimeout> | undefined
+let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
 async function loadAuthors(): Promise<void> {
-  loading.value = true
-  errorMessage.value = null
+  loading.value = true;
+  errorMessage.value = null;
   try {
     const data = await fetchAuthors({
       page: filters.page,
-      perPage: 20,
+      perPage: PAGE_SIZES.AUTHORS,
       search: filters.search || undefined,
-    })
-    authors.value = data.items
-    pagination.value = data.pagination
+    });
+    authors.value = data.items;
+    pagination.value = data.pagination;
   } catch (error) {
-    errorMessage.value = extractApiError(error)
+    errorMessage.value = extractApiError(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 function handleSearchChange(): void {
-  if (debounceTimer) clearTimeout(debounceTimer)
+  if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    filters.page = 1
-    loadAuthors()
-  }, 400)
+    filters.page = 1;
+    loadAuthors();
+  }, 400);
 }
 
 function goToPage(page: number): void {
-  filters.page = page
-  loadAuthors()
+  filters.page = page;
+  loadAuthors();
 }
 
 async function onDelete(author: AuthorShort): Promise<void> {
-  if (!window.confirm(`Удалить автора «${author.full_name}»?`)) return
-  deletingId.value = author.id
-  errorMessage.value = null
+  confirmAuthor.value = author;
+  const confirmed = await confirmRef.value?.open();
+  if (!confirmed || !confirmAuthor.value) return;
+  deletingId.value = confirmAuthor.value.id;
+  errorMessage.value = null;
   try {
-    await deleteAuthor(author.id)
-    if (authors.value.length === 1 && filters.page > 1) filters.page -= 1
-    await loadAuthors()
+    await deleteAuthor(confirmAuthor.value.id);
+    if (authors.value.length === 1 && filters.page > 1) filters.page -= 1;
+    await loadAuthors();
   } catch (error) {
-    errorMessage.value = extractApiError(error)
+    errorMessage.value = extractApiError(error);
   } finally {
-    deletingId.value = null
+    deletingId.value = null;
+    confirmAuthor.value = null;
   }
 }
 
-onMounted(loadAuthors)
+onMounted(loadAuthors);
 </script>
 
 <template>
@@ -99,6 +113,8 @@ onMounted(loadAuthors)
 
   <AppAlert :message="errorMessage" @close="errorMessage = null" />
 
+  <AppConfirm ref="confirmRef" :message="confirmMessage" />
+
   <div v-if="loading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Загрузка…</span>
@@ -123,7 +139,9 @@ onMounted(loadAuthors)
         <tbody>
           <tr v-for="author in authors" :key="author.id">
             <td class="ps-3">
-              <RouterLink :to="{ name: 'author-detail', params: { id: author.id } }">
+              <RouterLink
+                :to="{ name: 'author-detail', params: { id: author.id } }"
+              >
                 {{ author.full_name }}
               </RouterLink>
             </td>
@@ -140,7 +158,7 @@ onMounted(loadAuthors)
                   :disabled="deletingId === author.id"
                   @click="onDelete(author)"
                 >
-                  {{ deletingId === author.id ? 'Удаление…' : 'Удалить' }}
+                  {{ deletingId === author.id ? "Удаление…" : "Удалить" }}
                 </button>
               </template>
             </td>
@@ -151,6 +169,10 @@ onMounted(loadAuthors)
   </div>
 
   <div v-if="pagination" class="mt-4">
-    <AppPagination :page="pagination.page" :total-pages="pagination.total_pages" @change="goToPage" />
+    <AppPagination
+      :page="pagination.page"
+      :total-pages="pagination.total_pages"
+      @change="goToPage"
+    />
   </div>
 </template>
