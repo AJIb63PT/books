@@ -27,7 +27,6 @@ const coverUrl = ref<string | null>(null)
 const authors = ref<AuthorShort[]>([])
 const loading = ref(true)
 const saving = ref(false)
-const previewLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 
 async function loadAuthors(): Promise<void> {
@@ -41,7 +40,6 @@ async function loadAuthors(): Promise<void> {
 
 async function loadBookForEdit(): Promise<void> {
   if (!bookId.value) return
-  previewLoading.value = true
   try {
     const book = await fetchBook(bookId.value)
     form.title = book.title
@@ -52,8 +50,6 @@ async function loadBookForEdit(): Promise<void> {
     coverUrl.value = book.cover_url ?? null
   } catch (error) {
     errorMessage.value = extractApiError(error)
-  } finally {
-    previewLoading.value = false
   }
 }
 
@@ -205,9 +201,6 @@ onMounted(async () => {
             />
             <div class="mt-2" v-if="coverUrl">
               <img :src="coverUrl" alt="Обложка" class="img-thumbnail" style="max-height: 180px" />
-            </div>
-            <div v-if="previewLoading" class="text-secondary text-secondary-small mt-1">
-              Предпросмотр обложки… {{ coverUrl ? 'текущая обложка показана' : '' }}
             </div>
           </div>
 
