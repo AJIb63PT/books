@@ -45,15 +45,26 @@ npm run preview
 - Отправка SMS тоже замокана (`POST /sms-pilot/api.php`) — вся демка работает офлайн, без реального бэка и smspilot.
 - Переключение: `VITE_ENABLE_MOCKS` в `.env.development` (true) / `.env` (false). Service worker стартует автоматически в `src/main.ts` до монтирования приложения.
 
+## Тесты и линт
+
+```bash
+npm run test     # vitest (моки MSW и утилиты)
+npm run lint     # eslint (flat config)
+npm run format   # prettier --write .
+```
+
+- Тесты: `src/mocks/handlers.test.ts` — интеграционные проверки мок-хендлеров, `src/utils/*.test.ts` — плюрализация и нормализация телефона.
+- Линт и форматирование не должны ломать сборку: `npm run build` (`vue-tsc -b && vite build`).
+
 ## Переменные окружения (`.env`)
 
-| Переменная | По умолчанию | Описание |
-| --- | --- | --- |
-| `VITE_API_BASE_URL` | `/api/v1` | Относительный base URL API |
-| `VITE_PROXY_TARGET` | `http://localhost:8080` | Target бэкенда для dev-proxy |
-| `VITE_SMSPILOT_API_KEY` | тестовый ключ → `XXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZXXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZ` | Ключ smspilot (эмулятор, реальной отправки нет) |
-| `VITE_SMSPILOT_ENDPOINT` | `/sms-pilot/api.php` | Endpoint smspilot (проксируется через Vite во избежание CORS) |
-| `VITE_ENABLE_MOCKS` | `false` | Включение моков MSW (dev: true) |
+| Переменная               | По умолчанию                                                                       | Описание                                                      |
+| ------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `VITE_API_BASE_URL`      | `/api/v1`                                                                          | Относительный base URL API                                    |
+| `VITE_PROXY_TARGET`      | `http://localhost:8080`                                                            | Target бэкенда для dev-proxy                                  |
+| `VITE_SMSPILOT_API_KEY`  | тестовый ключ → `XXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZXXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZ` | Ключ smspilot (эмулятор, реальной отправки нет)               |
+| `VITE_SMSPILOT_ENDPOINT` | `/sms-pilot/api.php`                                                               | Endpoint smspilot (проксируется через Vite во избежание CORS) |
+| `VITE_ENABLE_MOCKS`      | `false`                                                                            | Включение моков MSW (dev: true)                               |
 
 ## Структура
 
@@ -70,10 +81,10 @@ src/
 
 ## Роли и права
 
-| Страница | Гость | Пользователь |
-| --- | --- | --- |
+| Страница               | Гость    | Пользователь                                 |
+| ---------------------- | -------- | -------------------------------------------- |
 | Книги / Авторы / Отчёт | просмотр | просмотр, создание, редактирование, удаление |
-| Подписка + SMS | да | да |
+| Подписка + SMS         | да       | да                                           |
 
 ## Примечания к контракту
 
